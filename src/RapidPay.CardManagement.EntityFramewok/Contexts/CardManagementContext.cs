@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RapidPay.CardManagement.Domain.Models;
-using RapidPay.CardManagement.EntityFramewok.Configurations;
+using RapidPay.CardManagement.Domain.Cards.Models;
+using RapidPay.CardManagement.EntityFramework.Configurations.CardManagement;
 
-namespace RapidPay.CardManagement.EntityFramewok;
+namespace RapidPay.CardManagement.EntityFramework.Contexts;
 
 public class CardManagementContext : DbContext
 {
@@ -17,7 +17,7 @@ public class CardManagementContext : DbContext
     public CardManagementContext() { }
 
     public DbSet<Card> Cards { get; set; }
-    public DbSet<Transaction> Transactions { get; set; }
+    public DbSet<CardTransaction> Transactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

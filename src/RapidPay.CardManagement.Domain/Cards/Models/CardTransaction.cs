@@ -1,27 +1,22 @@
 using ErrorOr;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace RapidPay.CardManagement.Domain.Models;
+namespace RapidPay.CardManagement.Domain.Cards.Models;
 
 [ComplexType]
-public class Transaction
+public class CardTransaction
 {
     #region Constructor
-    private Transaction(Guid transactionId, decimal amount, decimal feeApplied, DateTime transactionDate, string description)
+    public CardTransaction(Guid transactionId, decimal amount, decimal feeApplied, DateTime transactionDate)
     {
         TransactionId = transactionId;
         Amount = amount;
         FeeApplied = feeApplied;
         TransactionDate = transactionDate;
-        Description = description;
     }
 
-    private Transaction() { }
+    private CardTransaction() { }
     #endregion
 
     #region Properties
@@ -38,13 +33,10 @@ public class Transaction
 
     [Column("transactiondate")]
     public DateTime TransactionDate { get; private set; }
-
-    [Column("description")]
-    public string Description { get; private set; }
     #endregion
 
     #region Static Factory
-    public static ErrorOr<Transaction> Create(Guid transactionId, decimal amount, decimal feeApplied, DateTime transactionDate, string description)
+    public static ErrorOr<CardTransaction> Create(Guid transactionId, decimal amount, decimal feeApplied, DateTime transactionDate)
     {
         if (amount <= 0)
         {
@@ -56,7 +48,7 @@ public class Transaction
             return Error.Failure("Fee applied cannot be negative.");
         }
 
-        var transaction = new Transaction(transactionId, amount, feeApplied, transactionDate, description);
+        var transaction = new CardTransaction(transactionId, amount, feeApplied, transactionDate);
 
         if (transaction == null)
         {
@@ -68,7 +60,7 @@ public class Transaction
     #endregion
 
     #region Public Methods
-    public ErrorOr<Success> Update(decimal amount, decimal feeApplied, DateTime transactionDate, string description)
+    public ErrorOr<Success> Update(decimal amount, decimal feeApplied, DateTime transactionDate)
     {
         if (amount <= 0)
         {
@@ -83,7 +75,6 @@ public class Transaction
         Amount = amount;
         FeeApplied = feeApplied;
         TransactionDate = transactionDate;
-        Description = description;
 
         return new Success();
     }

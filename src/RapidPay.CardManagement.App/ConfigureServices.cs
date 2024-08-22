@@ -3,6 +3,8 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using RapidPay.CardManagement.App.Common.Behaviors;
+using RapidPay.CardManagement.App.Login;
+using RapidPay.CardManagement.App.UserLogin;
 
 namespace RapidPay.CardManagement.App;
 
@@ -17,6 +19,9 @@ public static class DependencyInjectionRegister
         services.AddScoped(
             typeof(IPipelineBehavior<,>),
             typeof(ValidationBehavior<,>));
+
+        services.AddScoped<ITokenServices, TokenServices>();
+        services.AddScoped<ILoginServices, LoginServices>();
 
         return services;
     }

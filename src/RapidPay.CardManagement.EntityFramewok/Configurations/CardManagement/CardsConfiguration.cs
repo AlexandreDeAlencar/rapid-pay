@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RapidPay.CardManagement.Domain.Models;
+using RapidPay.CardManagement.Domain.Cards.Models;
 
-namespace RapidPay.CardManagement.EntityFramewok.Configurations;
+namespace RapidPay.CardManagement.EntityFramework.Configurations.CardManagement;
 
 internal class CardsConfiguration : IEntityTypeConfiguration<Card>
 {
@@ -51,6 +51,21 @@ internal class CardsConfiguration : IEntityTypeConfiguration<Card>
             .HasColumnName("lastupdateddate")
             .IsRequired();
 
+        builder
+            .Property(c => c.UserName)
+            .HasColumnName("username")
+            .IsRequired();
+
+        builder
+            .Property(c => c.UserId)
+            .HasColumnName("userid")
+            .IsRequired();
+
+        builder
+            .Property(c => c.ExpirationDate)
+            .HasColumnName("expirationdate")
+            .IsRequired();
+
         ConfigureTransactionsTable(builder);
     }
 
@@ -64,7 +79,7 @@ internal class CardsConfiguration : IEntityTypeConfiguration<Card>
                 .WithOwner()
                 .HasForeignKey("CardId");
 
-            transactionBuilder.HasKey(nameof(Transaction.TransactionId), "CardId");
+            transactionBuilder.HasKey(nameof(CardTransaction.TransactionId), "CardId");
 
             transactionBuilder
                 .Property("CardId")
@@ -91,10 +106,6 @@ internal class CardsConfiguration : IEntityTypeConfiguration<Card>
                 .Property(t => t.TransactionDate)
                 .HasColumnName("transactiondate")
                 .IsRequired();
-
-            transactionBuilder
-                .Property(t => t.Description)
-                .HasColumnName("description");
         });
 
         builder.Metadata
