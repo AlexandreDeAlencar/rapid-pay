@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace RapidPay.CardManagement.EntityFramewok.Migrations
+namespace RapidPay.CardManagement.EntityFramework.Migrations.CardManagement
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,7 +23,10 @@ namespace RapidPay.CardManagement.EntityFramewok.Migrations
                     cardnumber = table.Column<string>(type: "text", nullable: false),
                     balance = table.Column<decimal>(type: "numeric", nullable: false),
                     createddate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    lastupdateddate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    lastupdateddate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    username = table.Column<string>(type: "text", nullable: false),
+                    userid = table.Column<string>(type: "text", nullable: false),
+                    expirationdate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -39,8 +42,7 @@ namespace RapidPay.CardManagement.EntityFramewok.Migrations
                     cardid = table.Column<Guid>(type: "uuid", nullable: false),
                     amount = table.Column<decimal>(type: "numeric", nullable: false),
                     feeapplied = table.Column<decimal>(type: "numeric", nullable: false),
-                    transactiondate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false)
+                    transactiondate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

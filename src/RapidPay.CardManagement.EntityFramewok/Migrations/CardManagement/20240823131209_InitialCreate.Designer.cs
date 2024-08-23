@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RapidPay.CardManagement.EntityFramework.Contexts;
 
 #nullable disable
 
-namespace RapidPay.CardManagement.EntityFramewok.Migrations
+namespace RapidPay.CardManagement.EntityFramework.Migrations.CardManagement
 {
     [DbContext(typeof(CardManagementContext))]
-    partial class CardManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20240823131209_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,7 +26,7 @@ namespace RapidPay.CardManagement.EntityFramewok.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("RapidPay.CardManagement.Domain.Models.Card", b =>
+            modelBuilder.Entity("RapidPay.CardManagement.Domain.Cards.Models.Card", b =>
                 {
                     b.Property<Guid>("CardId")
                         .ValueGeneratedOnAdd()
@@ -43,18 +46,32 @@ namespace RapidPay.CardManagement.EntityFramewok.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createddate");
 
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expirationdate");
+
                     b.Property<DateTime>("LastUpdatedDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("lastupdateddate");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("userid");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("username");
 
                     b.HasKey("CardId");
 
                     b.ToTable("cards", "public");
                 });
 
-            modelBuilder.Entity("RapidPay.CardManagement.Domain.Models.Card", b =>
+            modelBuilder.Entity("RapidPay.CardManagement.Domain.Cards.Models.Card", b =>
                 {
-                    b.OwnsMany("RapidPay.CardManagement.Domain.Models.Transaction", "Transactions", b1 =>
+                    b.OwnsMany("RapidPay.CardManagement.Domain.Cards.Models.CardTransaction", "Transactions", b1 =>
                         {
                             b1.Property<Guid>("TransactionId")
                                 .ValueGeneratedOnAdd()
@@ -68,11 +85,6 @@ namespace RapidPay.CardManagement.EntityFramewok.Migrations
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("numeric")
                                 .HasColumnName("amount");
-
-                            b1.Property<string>("Description")
-                                .IsRequired()
-                                .HasColumnType("text")
-                                .HasColumnName("description");
 
                             b1.Property<decimal>("FeeApplied")
                                 .HasColumnType("numeric")

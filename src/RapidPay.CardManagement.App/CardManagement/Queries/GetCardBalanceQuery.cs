@@ -18,6 +18,11 @@ namespace RapidPay.CardManagement.App.Cards.Queries
 
         public async Task<ErrorOr<GetCardBalanceQueryResponse>> Handle(GetCardBalanceQuery request, CancellationToken cancellationToken)
         {
+            if (request.CardId == Guid.Empty)
+            {
+                return Error.Validation("invalid card id");
+            }
+
             var getCardResult = await _cardRepository.GetByIdAsync(request.CardId, false);
 
             if ( getCardResult is null )

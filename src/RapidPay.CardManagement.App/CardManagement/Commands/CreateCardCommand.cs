@@ -8,14 +8,9 @@ namespace RapidPay.CardManagement.App.Cards.Commands
     public record CreateCardCommand(
         string UserName,
         string UserId
-        ) :
-        IRequest<ErrorOr<Created>>;
+        ) : IRequest<ErrorOr<Guid>>;
 
-    public record CreateCardCommandRequest(
-        string Username
-        );
-
-    public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, ErrorOr<Created>>
+    public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, ErrorOr<Guid>>
     {
         private readonly ICardRepository _cardRepository;
 
@@ -24,13 +19,25 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             _cardRepository = cardRepository;
         }
 
-        public async Task<ErrorOr<Created>> Handle(CreateCardCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Guid>> Handle(CreateCardCommand request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(request.UserName))
+            {
+                return Error.Validation(description: "Unable to create a new card");
+            }
+
+            if (string.IsNullOrEmpty(request.UserId))
+            {
+                return Error.Validation(description: "Invalid userId");
+            }
+
             // Set expiration date to 3 years from now
             var expirationDate = DateTime.Now.AddYears(3);
 
+            var cardId = Guid.NewGuid();
+
             var card = Card.Create(
-                Guid.NewGuid(),
+                cardId,
                 GenerateRandomCreditCardNumber(),
                 0, // Initial balance
                 DateTime.Now, // Created at
@@ -47,7 +54,7 @@ namespace RapidPay.CardManagement.App.Cards.Commands
 
             await _cardRepository.AddAsync(card.Value);
 
-            return new Created();
+            return cardId;
         }
 
         private static string GenerateRandomCreditCardNumber()

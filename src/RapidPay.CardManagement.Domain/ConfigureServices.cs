@@ -10,7 +10,7 @@ public static class ConfigureServices
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
-        services.AddSingleton<FeeDomainService>();
+        services.AddSingleton<FeesExchangeService>();
 
         return services;
     }

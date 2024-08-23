@@ -13,6 +13,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RapidPay.CardManagement.Dom
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RapidPay.CardManagement.EntityFramework", "RapidPay.CardManagement.EntityFramewok\RapidPay.CardManagement.EntityFramework.csproj", "{E6E9FC86-1334-4CDD-B8CA-9D5342C2AD7F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3BD017C0-8181-4C86-8BC7-0F549675B567}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTest", "UnitTest", "{7EC4C4F5-2280-41FC-818C-A28BA257E5D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RapidPay.CardManagement.UnitTests", "RapidPay.CardManagement.UnitTests\RapidPay.CardManagement.UnitTests.csproj", "{69250BFE-D5E7-4FA5-85E3-DD9D8D222468}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +41,10 @@ Global
 		{E6E9FC86-1334-4CDD-B8CA-9D5342C2AD7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6E9FC86-1334-4CDD-B8CA-9D5342C2AD7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6E9FC86-1334-4CDD-B8CA-9D5342C2AD7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69250BFE-D5E7-4FA5-85E3-DD9D8D222468}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69250BFE-D5E7-4FA5-85E3-DD9D8D222468}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69250BFE-D5E7-4FA5-85E3-DD9D8D222468}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69250BFE-D5E7-4FA5-85E3-DD9D8D222468}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,6 +54,9 @@ Global
 		{1E7BF8F7-55CC-4BC5-A8E3-D7F732634ECC} = {B9031338-8F89-4DE7-99E0-A6760174DF93}
 		{E7875B7F-E252-41BF-8F0D-41C4EC9D7B9C} = {B9031338-8F89-4DE7-99E0-A6760174DF93}
 		{E6E9FC86-1334-4CDD-B8CA-9D5342C2AD7F} = {B9031338-8F89-4DE7-99E0-A6760174DF93}
+		{3BD017C0-8181-4C86-8BC7-0F549675B567} = {B9031338-8F89-4DE7-99E0-A6760174DF93}
+		{7EC4C4F5-2280-41FC-818C-A28BA257E5D3} = {3BD017C0-8181-4C86-8BC7-0F549675B567}
+		{69250BFE-D5E7-4FA5-85E3-DD9D8D222468} = {7EC4C4F5-2280-41FC-818C-A28BA257E5D3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {61999227-A720-4EE1-8C0F-054793F35170}

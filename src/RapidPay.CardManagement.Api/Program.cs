@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RapidPay.CardManagement.Api.Endpoints;
 using RapidPay.CardManagement.App;
 using RapidPay.CardManagement.Domain;
-using RapidPay.CardManagement.Domain.Fees.Services;
 using RapidPay.CardManagement.EntityFramewok;
 using System.Text;
 
@@ -38,7 +38,6 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
 
 builder.Services
     .AddCardManagementApplication()
@@ -81,6 +80,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapCardsEndpoints();
+app.MapAuthEndpoints();
 
 app.Run();
