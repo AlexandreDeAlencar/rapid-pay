@@ -17,7 +17,7 @@ public class CreateCardCommandHandlerTests
     public async Task Handle_ShouldReturnCreated_WhenCardIsSuccessfullyCreated()
     {
         // Arrange
-        var command = new CreateCardCommand("JohnDoe", "User123");
+        var command = new CreateCard("JohnDoe", "User123");
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -31,7 +31,7 @@ public class CreateCardCommandHandlerTests
     public async Task Handle_ShouldThrowException_WhenCardCreationFails()
     {
         // Arrange
-        var command = new CreateCardCommand("JohnDoe", "User123");
+        var command = new CreateCard("JohnDoe", "User123");
 
         // Use the error-producing repository
         _handler = new CreateCardCommandHandler(new FakeCardRepositoryWithError(), new FakeLogger<CreateCardCommandHandler>());
@@ -50,7 +50,7 @@ public class CreateCardCommandHandlerTests
     public async Task Handle_ShouldReturnValidationError_WhenUserNameIsNullOrEmpty()
     {
         // Arrange
-        var command = new CreateCardCommand("", "User123"); // Empty UserName
+        var command = new CreateCard("", "User123"); // Empty UserName
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -66,7 +66,7 @@ public class CreateCardCommandHandlerTests
     public async Task Handle_ShouldReturnValidationError_WhenUserIdIsNullOrEmpty()
     {
         // Arrange
-        var command = new CreateCardCommand("JohnDoe", ""); // Empty UserId
+        var command = new CreateCard("JohnDoe", ""); // Empty UserId
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);

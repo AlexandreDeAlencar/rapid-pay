@@ -6,12 +6,12 @@ using RapidPay.CardManagement.Domain.Ports;
 
 namespace RapidPay.CardManagement.App.Cards.Commands
 {
-    public record CreateCardCommand(
+    public record CreateCard(
         string UserName,
         string UserId
     ) : IRequest<ErrorOr<Guid>>;
 
-    public class CreateCardCommandHandler : IRequestHandler<CreateCardCommand, ErrorOr<Guid>>
+    public class CreateCardCommandHandler : IRequestHandler<CreateCard, ErrorOr<Guid>>
     {
         private readonly ICardRepository _cardRepository;
         private readonly ILogger<CreateCardCommandHandler> _logger;
@@ -22,7 +22,7 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             _logger = logger;
         }
 
-        public async Task<ErrorOr<Guid>> Handle(CreateCardCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<Guid>> Handle(CreateCard request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to create a card for user: {UserName} with UserId: {UserId}", request.UserName, request.UserId);
 

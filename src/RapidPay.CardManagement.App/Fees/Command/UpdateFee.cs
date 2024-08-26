@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using RapidPay.CardManagement.Domain.Fees.Models;
 using RapidPay.CardManagement.Domain.Ports;
 
-namespace RapidPay.CardManagement.Application.Fees.Commands;
+namespace RapidPay.CardManagement.App.Fees.Command;
 
 public record UpdateFeeCommand(decimal FeeRate, DateTime EffectiveDate) : IRequest<ErrorOr<Success>>;
 
@@ -49,9 +49,9 @@ public class UpdateFeeCommandHandler : IRequestHandler<UpdateFeeCommand, ErrorOr
             _logger.LogError("Failed to save the updated fee. Errors: {Errors}", saveResult.Errors);
             return saveResult.Errors;
         }
-        
+
         _logger.LogInformation("Fee updated and saved successfully.");
-        
+
         return new Success();
     }
 }

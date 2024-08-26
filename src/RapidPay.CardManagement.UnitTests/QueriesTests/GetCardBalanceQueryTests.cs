@@ -15,7 +15,7 @@ public class GetCardBalanceQueryHandlerTests
         // Arrange
         var cardId = Guid.NewGuid();
         var handler = new GetCardBalanceQueryHandler(_fakeRepository);
-        var query = new GetCardBalanceQuery(cardId);
+        var query = new GetCardBalance(cardId);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
@@ -29,7 +29,7 @@ public class GetCardBalanceQueryHandlerTests
     {
         // Arrange
         var handler = new GetCardBalanceQueryHandler(_fakeRepository);
-        var query = new GetCardBalanceQuery(Guid.Empty);
+        var query = new GetCardBalance(Guid.Empty);
 
         // Act
         var result = await handler.Handle(query, CancellationToken.None);
