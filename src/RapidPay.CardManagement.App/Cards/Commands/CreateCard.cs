@@ -1,4 +1,5 @@
 ﻿using ErrorOr;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RapidPay.CardManagement.Domain.Cards.Models;
@@ -10,6 +11,18 @@ namespace RapidPay.CardManagement.App.Cards.Commands
         string UserName,
         string UserId
     ) : IRequest<ErrorOr<Guid>>;
+
+    public class CreateCardValidator : AbstractValidator<CreateCard>
+    {
+        public CreateCardValidator()
+        {
+            RuleFor(x => x.UserName)
+                .NotEmpty().WithMessage("UserName is required.");
+
+            RuleFor(x => x.UserId)
+                .NotEmpty().WithMessage("UserId is required.");
+        }
+    }
 
     public class CreateCardCommandHandler : IRequestHandler<CreateCard, ErrorOr<Guid>>
     {
@@ -25,18 +38,6 @@ namespace RapidPay.CardManagement.App.Cards.Commands
         public async Task<ErrorOr<Guid>> Handle(CreateCard request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Attempting to create a card for user: {UserName} with UserId: {UserId}", request.UserName, request.UserId);
-
-            if (string.IsNullOrEmpty(request.UserName))
-            {
-                _logger.LogWarning("Card creation failed: UserName is null or empty.");
-                return Error.Validation(description: "Unable to create a new card");
-            }
-
-            if (string.IsNullOrEmpty(request.UserId))
-            {
-                _logger.LogWarning("Card creation failed: UserId is null or empty.");
-                return Error.Validation(description: "Invalid userId");
-            }
 
             var expirationDate = DateTime.UtcNow.AddYears(3);
             var cardId = Guid.NewGuid();

@@ -1,4 +1,5 @@
 ﻿using ErrorOr;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RapidPay.CardManagement.Domain.Cards.Models;
@@ -10,6 +11,19 @@ namespace RapidPay.CardManagement.App.Cards.Commands
         Guid CardId,
         decimal Value
     ) : IRequest<ErrorOr<Success>>;
+
+    public class PayWithCreditCardCommandValidator : AbstractValidator<PayWithCreditCardCommand>
+    {
+        public PayWithCreditCardCommandValidator()
+        {
+            RuleFor(x => x.CardId)
+                .NotEmpty().WithMessage("Card ID is required.")
+                .NotEqual(Guid.Empty).WithMessage("Card ID cannot be an empty GUID.");
+
+            RuleFor(x => x.Value)
+                .GreaterThan(0).WithMessage("Payment value must be greater than zero.");
+        }
+    }
 
     public class PayWithCreditCardCommandHandler : IRequestHandler<PayWithCreditCardCommand, ErrorOr<Success>>
     {
@@ -30,12 +44,6 @@ namespace RapidPay.CardManagement.App.Cards.Commands
         public async Task<ErrorOr<Success>> Handle(PayWithCreditCardCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Processing payment with card: {CardId} for value: {Value}", request.CardId, request.Value);
-
-            if (request.CardId == Guid.Empty)
-            {
-                _logger.LogWarning("Payment failed: Invalid card ID.");
-                return Error.Validation(description: "Invalid card ID");
-            }
 
             var getCardResult = await _cardRepository.GetByIdAsync(request.CardId);
 

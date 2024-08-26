@@ -1,13 +1,25 @@
 ﻿using ErrorOr;
+using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using RapidPay.CardManagement.Domain.Fees.Models;
 using RapidPay.CardManagement.Domain.Ports;
 
 namespace RapidPay.CardManagement.App.Fees.Command;
 
 public record UpdateFeeCommand(decimal FeeRate, DateTime EffectiveDate) : IRequest<ErrorOr<Success>>;
+
+public class UpdateFeeCommandValidator : AbstractValidator<UpdateFeeCommand>
+{
+    public UpdateFeeCommandValidator()
+    {
+        RuleFor(x => x.FeeRate)
+            .GreaterThan(0).WithMessage("Fee rate must be greater than zero.");
+
+        RuleFor(x => x.EffectiveDate)
+            .NotEmpty().WithMessage("Effective date is required.")
+            .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("Effective date cannot be in the future.");
+    }
+}
 
 public class UpdateFeeCommandHandler : IRequestHandler<UpdateFeeCommand, ErrorOr<Success>>
 {

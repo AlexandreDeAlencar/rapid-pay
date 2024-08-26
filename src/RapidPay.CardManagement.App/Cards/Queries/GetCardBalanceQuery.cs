@@ -1,4 +1,5 @@
 ﻿using ErrorOr;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RapidPay.CardManagement.Domain.Ports;
@@ -12,6 +13,16 @@ namespace RapidPay.CardManagement.App.Cards.Queries
     public record GetCardBalanceQueryResponse(
         decimal Balance
     );
+
+    public class GetCardBalanceQueryValidator : AbstractValidator<GetCardBalanceQuery>
+    {
+        public GetCardBalanceQueryValidator()
+        {
+            RuleFor(x => x.CardId)
+                .NotEmpty().WithMessage("Card ID is required.")
+                .NotEqual(Guid.Empty).WithMessage("Card ID cannot be an empty GUID.");
+        }
+    }
 
     public class GetCardBalanceQueryHandler : IRequestHandler<GetCardBalanceQuery, ErrorOr<GetCardBalanceQueryResponse>>
     {
@@ -27,12 +38,6 @@ namespace RapidPay.CardManagement.App.Cards.Queries
         public async Task<ErrorOr<GetCardBalanceQueryResponse>> Handle(GetCardBalanceQuery request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving balance for card: {CardId}", request.CardId);
-
-            if (request.CardId == Guid.Empty)
-            {
-                _logger.LogWarning("Failed to retrieve balance: Invalid card ID.");
-                return Error.Validation("Invalid card ID");
-            }
 
             var getCardResult = await _cardRepository.GetByIdAsync(request.CardId, false);
 
