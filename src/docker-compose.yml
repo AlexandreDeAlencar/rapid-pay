@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  rapidpay.cardmanagement.api:
+    image: ${DOCKER_REGISTRY-}rapidpaycardmanagementapi
+    build:
+      context: .
+      dockerfile: RapidPay.CardManagement.Api/Dockerfile
