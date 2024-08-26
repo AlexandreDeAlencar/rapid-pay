@@ -65,7 +65,7 @@ namespace RapidPay.CardManagement.Api.Endpoints
             {
                 logger.LogInformation("GetCardBalance endpoint called. CardId: {CardId}", cardId);
 
-                var query = new GetCardBalance(cardId);
+                var query = new GetCardBalanceQuery(cardId);
                 var result = await mediator.Send(query);
 
                 return result.Match(

@@ -1,4 +1,5 @@
-﻿using RapidPay.CardManagement.Domain.Cards.Models;
+﻿using Bogus;
+using RapidPay.CardManagement.Domain.Cards.Models;
 using RapidPay.CardManagement.Domain.Ports;
 
 public class FakeCardRepository : ICardRepository
@@ -16,9 +17,12 @@ public class FakeCardRepository : ICardRepository
 
     public Task<Card?> GetByIdAsync(Guid id)
     {
+        var faker = new Faker();
+        var cardNumber = faker.Finance.CreditCardNumber();
+
         var createdCard = Card.Create(
-            id,
-            "123456789012345",
+            Guid.NewGuid(),
+            cardNumber, // Generated card number
             0,
             DateTime.Now,
             DateTime.Now,
@@ -26,7 +30,6 @@ public class FakeCardRepository : ICardRepository
             "MockUserId",
             DateTime.Now.AddYears(3)
         );
-
         if (createdCard.IsError)
         {
             return Task.FromResult<Card?>(null);
