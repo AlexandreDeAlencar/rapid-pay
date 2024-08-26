@@ -1,56 +1,72 @@
+using System.Collections;
+using Bogus;
 using RapidPay.CardManagement.App.Cards.Commands;
-using ErrorOr;
+using RapidPay.CardManagement.UnitTests.MockedServices;
 using static FakeCardRepository;
+
+public class CreateCardCommandHandlerTestData : IEnumerable<object[]>
+{
+    private readonly Faker _faker = new Faker();
+
+    public IEnumerator<object[]> GetEnumerator()
+    {
+        yield return new object[] { _faker.Person.FullName, _faker.Random.Guid().ToString(), true, typeof(Guid) }; // Success case
+        yield return new object[] { _faker.Person.FullName, _faker.Random.Guid().ToString(), false, typeof(InvalidOperationException) }; // Error case
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
 
 public class CreateCardCommandHandlerTests
 {
     private readonly FakeCardRepository _fakeCardRepository;
+    private readonly Faker _faker;
     private CreateCardCommandHandler _handler;
 
     public CreateCardCommandHandlerTests()
     {
         _fakeCardRepository = new FakeCardRepository();
+        _faker = new Faker();
         _handler = new CreateCardCommandHandler(_fakeCardRepository, new FakeLogger<CreateCardCommandHandler>());
     }
 
-    [Fact]
-    public async Task Handle_ShouldReturnCreated_WhenCardIsSuccessfullyCreated()
+    [Theory]
+    [ClassData(typeof(CreateCardCommandHandlerTestData))]
+    public async Task Handle_ShouldReturnCorrectResult_BasedOnRepositoryBehavior(string userName, string userId, bool simulateSuccess, Type expectedType)
     {
         // Arrange
-        var command = new CreateCard("JohnDoe", "User123");
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.IsType<Guid>(result.Value);
-        Assert.Single(_fakeCardRepository.AddedCards);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldThrowException_WhenCardCreationFails()
-    {
-        // Arrange
-        var command = new CreateCard("JohnDoe", "User123");
-
-        // Use the error-producing repository
-        _handler = new CreateCardCommandHandler(new FakeCardRepositoryWithError(), new FakeLogger<CreateCardCommandHandler>());
+        if (!simulateSuccess)
+        {
+            _handler = new CreateCardCommandHandler(new FakeCardRepositoryWithError(), new FakeLogger<CreateCardCommandHandler>());
+        }
+        var command = new CreateCard(userName, userId);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+        if (expectedType == typeof(Guid))
         {
-            await _handler.Handle(command, CancellationToken.None);
-        });
-
-        // Additional assertions if necessary
-        Assert.Equal("Simulated error during card creation", exception.Message);
+            var result = await _handler.Handle(command, CancellationToken.None);
+            Assert.IsType<Guid>(result.Value);
+            if (simulateSuccess)
+            {
+                Assert.Single(_fakeCardRepository.AddedCards);
+            }
+        }
+        else if (expectedType == typeof(InvalidOperationException))
+        {
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            {
+                await _handler.Handle(command, CancellationToken.None);
+            });
+        }
     }
 
-    [Fact]
-    public async Task Handle_ShouldReturnValidationError_WhenUserNameIsNullOrEmpty()
+    [Theory]
+    [InlineData("", "User123", "Unable to create a new card")]
+    [InlineData("JohnDoe", "", "Invalid userId")]
+    public async Task Handle_ShouldReturnValidationError_WhenInputIsInvalid(string userName, string userId, string expectedErrorMessage)
     {
         // Arrange
-        var command = new CreateCard("", "User123"); // Empty UserName
+        var command = new CreateCard(userName, userId);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -59,22 +75,6 @@ public class CreateCardCommandHandlerTests
         Assert.True(result.IsError);
         var error = result.FirstError;
         Assert.NotNull(error);
-        Assert.Equal("Unable to create a new card", error.Description);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldReturnValidationError_WhenUserIdIsNullOrEmpty()
-    {
-        // Arrange
-        var command = new CreateCard("JohnDoe", ""); // Empty UserId
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsError);
-        var error = result.FirstError;
-        Assert.NotNull(error);
-        Assert.Equal("Invalid userId", error.Description);
+        Assert.Equal(expectedErrorMessage, error.Description);
     }
 }

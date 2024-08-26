@@ -1,79 +1,83 @@
-﻿using RapidPay.CardManagement.App.Fees.Command;
-using static FakeCardRepository;
+﻿using System.Collections;
+using RapidPay.CardManagement.App.Fees.Command;
+using RapidPay.CardManagement.Domain.Ports;
+using RapidPay.CardManagement.UnitTests.MockedServices;
 
-namespace RapidPay.CardManagement.UnitTests.CommandTests;
+public class UpdateFeeCommandHandlerTestData : IEnumerable<object[]>
+{
+    public IEnumerator<object[]> GetEnumerator()
+    {
+        yield return new object[] { 1.5m, "Simulated error retrieving fee", new FakeFeeRepositoryWithError() };
+        yield return new object[] { 1.5m, "Simulated error upserting fee", new FakeFeeRepositoryWithError() };
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
 public class UpdateFeeCommandHandlerTests
 {
-    private readonly FakeFeeRepository _fakeFeeRepository;
     private readonly FakeLogger<UpdateFeeCommandHandler> _fakeLogger;
-    private readonly UpdateFeeCommandHandler _handler;
 
     public UpdateFeeCommandHandlerTests()
     {
-        _fakeFeeRepository = new FakeFeeRepository();
         _fakeLogger = new FakeLogger<UpdateFeeCommandHandler>();
-        _handler = new UpdateFeeCommandHandler(_fakeFeeRepository, _fakeLogger);
+    }
+
+    [Theory]
+    [InlineData(1.5, "Simulated error retrieving fee", true)]
+    [InlineData(1.5, "Simulated error upserting fee", false)]
+    public async Task Handle_ShouldReturnFailure_WhenOperationFails(decimal feeRate, string expectedErrorMessage, bool simulateRetrievalError)
+    {
+        // Arrange
+        IFeeRepository fakeRepository = simulateRetrievalError
+            ? new FakeFeeRepositoryWithError()
+            : new FakeFeeRepositoryWithError();
+        var handler = new UpdateFeeCommandHandler(fakeRepository, _fakeLogger);
+        var command = new UpdateFeeCommand(feeRate, DateTime.UtcNow);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsError);
+        var error = result.FirstError;
+        Assert.NotNull(error);
+        Assert.Equal(expectedErrorMessage, error.Description);
+    }
+
+    [Theory]
+    [ClassData(typeof(UpdateFeeCommandHandlerTestData))]
+    public async Task Handle_ShouldReturnFailure_WhenOperationFails_ClassData(decimal feeRate, string expectedErrorMessage, IFeeRepository fakeRepository)
+    {
+        // Arrange
+        var handler = new UpdateFeeCommandHandler(fakeRepository, _fakeLogger);
+        var command = new UpdateFeeCommand(feeRate, DateTime.UtcNow);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsError);
+        var error = result.FirstError;
+        Assert.NotNull(error);
+        Assert.Equal(expectedErrorMessage, error.Description);
     }
 
     [Fact]
     public async Task Handle_ShouldUpdateFee_WhenFeeIsValid()
     {
         // Arrange
+        var fakeRepository = new FakeFeeRepository();
+        var handler = new UpdateFeeCommandHandler(fakeRepository, _fakeLogger);
         var command = new UpdateFeeCommand(1.5m, DateTime.UtcNow);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.False(result.IsError);
-        var updatedFee = _fakeFeeRepository.GetFee().Value;
+        var updatedFee = fakeRepository.GetFee().Value;
         Assert.NotNull(updatedFee);
         Assert.Equal(1.5m, updatedFee.Value);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenFeeRetrievalFails()
-    {
-        // Arrange
-        var handlerWithError = new UpdateFeeCommandHandler(new FakeFeeRepositoryWithError(), _fakeLogger);
-        var command = new UpdateFeeCommand(1.5m, DateTime.UtcNow);
-
-        // Act
-        var result = await handlerWithError.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsError);
-        var error = result.FirstError;
-        Assert.NotNull(error);
-        Assert.Equal("Simulated error retrieving fee", error.Description);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldReturnFailure_WhenUpsertFails()
-    {
-        // Arrange
-        var handlerWithError = new UpdateFeeCommandHandler(new FakeFeeRepositoryWithError(), _fakeLogger);
-        var command = new UpdateFeeCommand(1.5m, DateTime.UtcNow);
-
-        // Act
-        var result = await handlerWithError.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.True(result.IsError);
-        var error = result.FirstError;
-        Assert.NotNull(error);
-        Assert.Equal("Simulated error upserting fee", error.Description);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldLogInformation_WhenFeeIsUpdated()
-    {
-        // Arrange
-        var command = new UpdateFeeCommand(1.5m, DateTime.UtcNow);
-
-        // Act
-        await _handler.Handle(command, CancellationToken.None);
-
-        Assert.NotNull(_fakeLogger);
     }
 }
