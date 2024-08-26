@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using RapidPay.CardManagement.Domain.Ports;
 using RapidPay.CardManagement.EntityFramewok.Repositories;
 using RapidPay.CardManagement.EntityFramework.Contexts;
-using RapidPay.CardManagement.EntityFramework.Repositories;
 
 namespace RapidPay.CardManagement.EntityFramewok;
 

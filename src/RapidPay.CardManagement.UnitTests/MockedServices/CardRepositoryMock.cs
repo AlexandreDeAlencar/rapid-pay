@@ -4,7 +4,6 @@ using RapidPay.CardManagement.Domain.Ports;
 
 public class FakeCardRepository : ICardRepository
 {
-    // Store the cards in-memory for testing
     private readonly List<Card> _cards = new List<Card>();
 
     public List<Card> AddedCards => _cards;
@@ -22,7 +21,7 @@ public class FakeCardRepository : ICardRepository
 
         var createdCard = Card.Create(
             Guid.NewGuid(),
-            cardNumber, // Generated card number
+            cardNumber,
             0,
             DateTime.Now,
             DateTime.Now,

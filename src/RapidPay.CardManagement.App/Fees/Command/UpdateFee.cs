@@ -42,7 +42,7 @@ public class UpdateFeeCommandHandler : IRequestHandler<UpdateFeeCommand, ErrorOr
             return updateResult.Errors;
         }
 
-        var saveResult = _feeRepository.UpdateFee(fee);
+        var saveResult = _feeRepository.UpsertFee(fee);
 
         if (saveResult.IsError)
         {

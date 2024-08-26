@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RapidPay.CardManagement.App\RapidPay.CardManagement.App.csproj" />
     <ProjectReference Include="..\RapidPay.CardManagement.EntityFramewok\RapidPay.CardManagement.EntityFramework.csproj" />
+    <ProjectReference Include="..\RapidPay.PaymentFees.BackgroundService\RapidPay.PaymentFees.BackgroundService.csproj" />
   </ItemGroup>
 
 </Project>

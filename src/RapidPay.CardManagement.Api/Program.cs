@@ -7,15 +7,14 @@ using RapidPay.CardManagement.App;
 using RapidPay.CardManagement.Domain;
 using RapidPay.CardManagement.EntityFramewok;
 using RapidPay.CardManagement.EntityFramework.Contexts;
+using RapidPay.PaymentFees.BackgroundService;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // Add JWT Authentication to Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -44,6 +43,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services
     .AddCardManagementApplication()
     .AddEntityFrameworkConfiguration(builder.Configuration)
+    .AddPaymentFeesBackgroundService()
     .AddCardManagementDomain();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -73,23 +73,49 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Ensure database is created and migrations are applied
 if (app.Environment.IsDevelopment())
 {
     using (var scope = app.Services.CreateScope())
     {
         var services = scope.ServiceProvider;
+        var logger = services.GetRequiredService<ILogger<Program>>();
 
-        var cardManagementContext = services.GetRequiredService<CardManagementContext>();
-        var userAuthContext = services.GetRequiredService<UserAuthContext>();
+        try
+        {
+            var cardManagementContext = services.GetRequiredService<CardManagementContext>();
+            var userAuthContext = services.GetRequiredService<UserAuthContext>();
 
-        // Ensure databases are created
-        cardManagementContext.Database.EnsureCreated();
-        userAuthContext.Database.EnsureCreated();
+            bool cardManagementCreated = cardManagementContext.Database.EnsureCreated();
+            bool userAuthCreated = userAuthContext.Database.EnsureCreated();
 
-        // Apply migrations automatically
-        cardManagementContext.Database.Migrate();
-        userAuthContext.Database.Migrate();
+            if (cardManagementCreated)
+            {
+                logger.LogInformation("CardManagement database was created successfully.");
+            }
+            else
+            {
+                logger.LogInformation("CardManagement database already exists.");
+            }
+
+            if (userAuthCreated)
+            {
+                logger.LogInformation("UserAuth database was created successfully.");
+            }
+            else
+            {
+                logger.LogInformation("UserAuth database already exists.");
+            }
+
+            cardManagementContext.Database.Migrate();
+            userAuthContext.Database.Migrate();
+
+            logger.LogInformation("Database migrations applied successfully.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while creating or migrating the databases.");
+            throw;
+        }
     }
 }
 
