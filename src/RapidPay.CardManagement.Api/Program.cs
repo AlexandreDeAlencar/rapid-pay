@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RapidPay.CardManagement.Api.Endpoints;
 using RapidPay.CardManagement.App;
 using RapidPay.CardManagement.Domain;
 using RapidPay.CardManagement.EntityFramewok;
+using RapidPay.CardManagement.EntityFramework.Contexts;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -67,10 +69,29 @@ builder.Services
         };
     });
 
-builder.Services
-    .AddAuthorization();
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+// Ensure database is created and migrations are applied
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        var cardManagementContext = services.GetRequiredService<CardManagementContext>();
+        var userAuthContext = services.GetRequiredService<UserAuthContext>();
+
+        // Ensure databases are created
+        cardManagementContext.Database.EnsureCreated();
+        userAuthContext.Database.EnsureCreated();
+
+        // Apply migrations automatically
+        cardManagementContext.Database.Migrate();
+        userAuthContext.Database.Migrate();
+    }
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();

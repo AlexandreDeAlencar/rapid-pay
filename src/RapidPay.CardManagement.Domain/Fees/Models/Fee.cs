@@ -8,9 +8,9 @@ namespace RapidPay.CardManagement.Domain.Fees.Models;
 public partial class Fee
 {
     #region Constructor
-    private Fee(Guid feeId, decimal feeRate, DateTime effectiveDate)
+    private Fee(Guid feeId, decimal value, DateTime effectiveDate)
     {
-        Feerate = feeRate;
+        Value = value;
         Effectivedate = effectiveDate;
     }
 
@@ -23,9 +23,9 @@ public partial class Fee
     [Column("feeid")]
     public Guid Id { get; private set; }
 
-    [Column("feerate")]
+    [Column("value")]
     [Required]
-    public decimal Feerate { get; private set; }
+    public decimal Value { get; private set; }
 
     [Column("effectivedate")]
     public DateTime Effectivedate { get; private set; }
@@ -58,7 +58,7 @@ public partial class Fee
             return Error.Failure("Fee rate must be greater than zero.");
         }
 
-        Feerate = feeRate;
+        Value = feeRate;
         Effectivedate = effectiveDate;
 
         return new Success();

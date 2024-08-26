@@ -1,7 +1,6 @@
 ﻿using ErrorOr;
 using MediatR;
 using RapidPay.CardManagement.Domain.Cards.Models;
-using RapidPay.CardManagement.Domain.Fees.Services;
 using RapidPay.CardManagement.Domain.Ports;
 
 namespace RapidPay.CardManagement.App.Cards.Commands
@@ -14,12 +13,12 @@ namespace RapidPay.CardManagement.App.Cards.Commands
     public class PayWithCreditCardCommandHandler : IRequestHandler<PayWithCreditCardCommand, ErrorOr<Success>>
     {
         private readonly ICardRepository _cardRepository;
-        private readonly FeesExchangeService _feesExchangeService;
+        private readonly IFeeRepository _feeRepository;
 
-        public PayWithCreditCardCommandHandler(ICardRepository cardRepository, FeesExchangeService feesExchangeService)
+        public PayWithCreditCardCommandHandler(ICardRepository cardRepository, IFeeRepository feeRepository)
         {
             _cardRepository = cardRepository;
-            _feesExchangeService = feesExchangeService;
+            _feeRepository = feeRepository;
         }
 
         public async Task<ErrorOr<Success>> Handle(PayWithCreditCardCommand request, CancellationToken cancellationToken)
@@ -36,14 +35,21 @@ namespace RapidPay.CardManagement.App.Cards.Commands
                 return Error.NotFound(description: "get card failed");
             }
 
-            var currentFeeMultiplier = _feesExchangeService.GetCurrentFeeMultiplier();
+            var feeResult = _feeRepository.GetFee();
 
-            var valueWithFee = request.Value * currentFeeMultiplier;
+            if (feeResult.IsError)
+            {
+                return Error.Failure(description: "unable to get fee");
+            }
+
+            var fee = feeResult.Value;
+
+            var valueWithFee = request.Value * fee.Value;
 
             var newTransaction = new CardTransaction(
                 Guid.NewGuid(),
                 valueWithFee,
-                currentFeeMultiplier,
+                fee.Value,
                 DateTime.UtcNow
                 );
 

@@ -1,10 +1,12 @@
-﻿using RapidPay.CardManagement.Domain.Fees.Models;
+﻿using ErrorOr;
+using RapidPay.CardManagement.Domain.Fees.Models;
 
 namespace RapidPay.CardManagement.Domain.Ports
 {
     public interface IFeeRepository
     {
-        Task AddAsync(Fee fee);
-        Task<Fee?> GetLatestAsync();
+        ErrorOr<Fee> GetFee();
+        ErrorOr<Success> SaveFee(Fee fee);
+        ErrorOr<Success> UpdateFee(Fee fee);
     }
 }

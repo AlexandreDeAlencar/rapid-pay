@@ -17,8 +17,4 @@
     <ProjectReference Include="..\RapidPay.CardManagement.Domain\RapidPay.CardManagement.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Fees\" />
-  </ItemGroup>
-
 </Project>

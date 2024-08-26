@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RapidPay.CardManagement.EntityFramework.Contexts
 {
-    internal class UserAuthContext(DbContextOptions<UserAuthContext> options) : IdentityDbContext<IdentityUser>(options)
+    public class UserAuthContext(DbContextOptions<UserAuthContext> options) : IdentityDbContext<IdentityUser>(options)
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
