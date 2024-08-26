@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,8 +17,9 @@ namespace RapidPay.CardManagement.App.UserLogin
         private readonly string? _issuer;
         private readonly string? _audience;
         private readonly string? _secretKey;
+        private readonly ILogger<TokenServices> _logger;
 
-        public TokenServices(IConfiguration configuration)
+        public TokenServices(IConfiguration configuration, ILogger<TokenServices> logger)
         {
             _issuer = configuration["JwtSettings:Issuer"]
                 ?? throw new ArgumentNullException(nameof(_issuer), "JWT Issuer configuration is missing.");
@@ -25,10 +27,14 @@ namespace RapidPay.CardManagement.App.UserLogin
                 ?? throw new ArgumentNullException(nameof(_audience), "JWT Audience configuration is missing.");
             _secretKey = configuration["JwtSettings:SecretKey"]
                 ?? throw new ArgumentNullException(nameof(_secretKey), "JWT Secret Key configuration is missing.");
+
+            _logger = logger;
         }
 
         public string GenerateJwtToken(string userId, string userName)
         {
+            _logger.LogInformation("Generating JWT token for user: {UserName}, UserId: {UserId}", userName, userId);
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -36,15 +42,20 @@ namespace RapidPay.CardManagement.App.UserLogin
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("id", userId),
-                    new Claim("name", userName) 
+                    new Claim("name", userName)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Audience = _audience,
                 Issuer = _issuer
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var tokenString = tokenHandler.WriteToken(token);
+
+            _logger.LogInformation("JWT token generated successfully for user: {UserName}, UserId: {UserId}", userName, userId);
+
+            return tokenString;
         }
     }
 }

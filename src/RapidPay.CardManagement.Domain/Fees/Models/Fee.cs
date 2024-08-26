@@ -11,7 +11,7 @@ public partial class Fee
     private Fee(Guid feeId, decimal value, DateTime effectiveDate)
     {
         Value = value;
-        Effectivedate = effectiveDate;
+        EffectiveDate = effectiveDate;
     }
 
     private Fee() { }
@@ -28,7 +28,7 @@ public partial class Fee
     public decimal Value { get; private set; }
 
     [Column("effectivedate")]
-    public DateTime Effectivedate { get; private set; }
+    public DateTime EffectiveDate { get; private set; }
     #endregion
 
     #region Static Factory
@@ -58,8 +58,11 @@ public partial class Fee
             return Error.Failure("Fee rate must be greater than zero.");
         }
 
-        Value = feeRate;
-        Effectivedate = effectiveDate;
+        var random = new Random();
+        decimal newRandomMultiplier = (decimal)(random.NextDouble() * 2);
+        Guid feeId = Guid.NewGuid();
+        Value = (decimal)(random.NextDouble() * 2);
+        EffectiveDate = DateTime.UtcNow;
 
         return new Success();
     }

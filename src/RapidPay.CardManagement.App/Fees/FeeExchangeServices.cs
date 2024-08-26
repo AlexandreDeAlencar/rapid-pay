@@ -1,48 +1,57 @@
 ﻿using ErrorOr;
+using MediatR;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using RapidPay.CardManagement.Domain.Fees.Models;
+using RapidPay.CardManagement.Domain.Ports;
 
-public class FeesExchangeService
+namespace RapidPay.CardManagement.Application.Fees.Commands;
+
+public record UpdateFeeCommand(decimal FeeRate, DateTime EffectiveDate) : IRequest<ErrorOr<Success>>;
+
+public class UpdateFeeCommandHandler : IRequestHandler<UpdateFeeCommand, ErrorOr<Success>>
 {
-    private readonly IMemoryCache _cache;
-    private readonly Timer _timer;
+    private readonly IFeeRepository _feeRepository;
+    private readonly ILogger<UpdateFeeCommandHandler> _logger;
 
-    public FeesExchangeService(IMemoryCache cache)
+    public UpdateFeeCommandHandler(IFeeRepository feeRepository, ILogger<UpdateFeeCommandHandler> logger)
     {
-        _cache = cache;
-        _timer = new Timer(UpdateFee, null, TimeSpan.Zero, TimeSpan.FromHours(1));
+        _feeRepository = feeRepository;
+        _logger = logger;
     }
 
-    public ErrorOr<Fee> GetCurrentFee()
+    public async Task<ErrorOr<Success>> Handle(UpdateFeeCommand request, CancellationToken cancellationToken)
     {
-        // Try to get the fee from the cache
-        if (_cache.TryGetValue("CurrentFee", out Fee fee))
-        {
-            return fee;
-        }
+        _logger.LogInformation("Starting fee update. New Fee Rate: {FeeRate}, Effective Date: {EffectiveDate}", request.FeeRate, request.EffectiveDate);
 
-        return Error.Failure("Fee not found in cache.");
-    }
-
-    private void UpdateFee(object? state)
-    {
-        var random = new Random();
-        decimal newRandomMultiplier = (decimal)(random.NextDouble() * 2);
-        Guid feeId = Guid.NewGuid();
-        DateTime effectiveDate = DateTime.UtcNow;
-
-        var feeResult = Fee.Create(feeId, newRandomMultiplier, effectiveDate);
+        var feeResult = _feeRepository.GetFee();
 
         if (feeResult.IsError)
         {
-            return;
+            _logger.LogWarning("Fee retrieval failed. Errors: {Errors}", feeResult.Errors);
+            return feeResult.Errors;
         }
 
-        Fee fee = feeResult.Value;
+        var fee = feeResult.Value;
 
-        _cache.Set("CurrentFee", fee, new MemoryCacheEntryOptions
+        var updateResult = fee.Update(request.FeeRate, request.EffectiveDate);
+
+        if (updateResult.IsError)
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
-        });
+            _logger.LogWarning("Fee update failed. Errors: {Errors}", updateResult.Errors);
+            return updateResult.Errors;
+        }
+
+        var saveResult = _feeRepository.UpdateFee(fee);
+
+        if (saveResult.IsError)
+        {
+            _logger.LogError("Failed to save the updated fee. Errors: {Errors}", saveResult.Errors);
+            return saveResult.Errors;
+        }
+        
+        _logger.LogInformation("Fee updated and saved successfully.");
+        
+        return new Success();
     }
 }

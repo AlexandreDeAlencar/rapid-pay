@@ -10,7 +10,7 @@ public class CreateCardCommandHandlerTests
     public CreateCardCommandHandlerTests()
     {
         _fakeCardRepository = new FakeCardRepository();
-        _handler = new CreateCardCommandHandler(_fakeCardRepository);
+        _handler = new CreateCardCommandHandler(_fakeCardRepository, new FakeLogger<CreateCardCommandHandler>());
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public class CreateCardCommandHandlerTests
         var command = new CreateCardCommand("JohnDoe", "User123");
 
         // Use the error-producing repository
-        _handler = new CreateCardCommandHandler(new FakeCardRepositoryWithError());
+        _handler = new CreateCardCommandHandler(new FakeCardRepositoryWithError(), new FakeLogger<CreateCardCommandHandler>());
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>

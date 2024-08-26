@@ -10,7 +10,7 @@ public class CardTransaction
     #region Constructor
     public CardTransaction(Guid transactionId, decimal amount, decimal feeApplied, DateTime transactionDate)
     {
-        TransactionId = transactionId;
+        Id = transactionId;
         Amount = amount;
         FeeApplied = feeApplied;
         TransactionDate = transactionDate;
@@ -21,7 +21,7 @@ public class CardTransaction
 
     #region Properties
     [Column("transactionid")]
-    public Guid TransactionId { get; private set; }
+    public Guid Id { get; private set; }
 
     [Column("amount")]
     [Required]

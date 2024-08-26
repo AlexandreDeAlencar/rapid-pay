@@ -79,7 +79,7 @@ internal class CardsConfiguration : IEntityTypeConfiguration<Card>
                 .WithOwner()
                 .HasForeignKey("CardId");
 
-            transactionBuilder.HasKey(nameof(CardTransaction.TransactionId), "CardId");
+            transactionBuilder.HasKey(nameof(CardTransaction.Id), "CardId");
 
             transactionBuilder
                 .Property("CardId")
@@ -87,7 +87,7 @@ internal class CardsConfiguration : IEntityTypeConfiguration<Card>
                 .IsRequired();
 
             transactionBuilder
-                .Property(t => t.TransactionId)
+                .Property(t => t.Id)
                 .HasColumnName("transactionid")
                 .ValueGeneratedOnAdd()
                 .IsRequired();
