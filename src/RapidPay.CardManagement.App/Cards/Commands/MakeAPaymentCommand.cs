@@ -43,8 +43,8 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             var newTransaction = new CardTransaction(
                 Guid.NewGuid(),
                 valueWithFee,
-                1,
-                DateTime.Now
+                currentFeeMultiplier,
+                DateTime.UtcNow
                 );
 
             var updateBalanceResult = getCardResult.AddTransaction(newTransaction);
@@ -53,6 +53,8 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             {
                 return Error.Validation(description: "update balance failed");
             }
+
+            await _cardRepository.SaveChangesAsync();
 
             return new Success();
         }

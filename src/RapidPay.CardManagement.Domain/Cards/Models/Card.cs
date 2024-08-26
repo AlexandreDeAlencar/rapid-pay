@@ -95,11 +95,6 @@ namespace RapidPay.CardManagement.Domain.Cards.Models
         #region Public Methods
         private ErrorOr<Success> UpdateBalance(decimal newBalance)
         {
-            if (newBalance < 0)
-            {
-                return Error.Failure("Balance cannot be negative.");
-            }
-
             Balance = newBalance;
             LastUpdatedDate = DateTime.UtcNow;
 

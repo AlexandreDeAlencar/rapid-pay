@@ -17,7 +17,6 @@ public class CardManagementContext : DbContext
     public CardManagementContext() { }
 
     public DbSet<Card> Cards { get; set; }
-    public DbSet<CardTransaction> Transactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

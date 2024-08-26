@@ -5,13 +5,13 @@ using RapidPay.CardManagement.App.Cards.Queries;
 namespace RapidPay.CardManagement.Api.Endpoints
 {
     public static class CardsEndpoints
-    {
+    {       
         public static void MapCardsEndpoints(this IEndpointRouteBuilder app)
         {
-            app.MapPost("/api/cards", async (HttpContext httpContext, IMediator mediator) =>
+            app.MapPost("/api/cards/create", async (HttpContext httpContext, IMediator mediator) =>
             {
                 // Extract UserName and UserId from the token claims
-                var userName = httpContext.User.Identity?.Name;
+                var userName = httpContext.User.FindFirst("name")?.Value;
                 var userId = httpContext.User.FindFirst("id")?.Value;
 
                 if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userId))
@@ -29,7 +29,7 @@ namespace RapidPay.CardManagement.Api.Endpoints
             })
             .RequireAuthorization();
 
-            app.MapPost("/api/cards/pay", async (PayWithCreditCardCommand command, IMediator mediator) =>
+            app.MapPost("/api/cards/payment", async (PayWithCreditCardCommand command, IMediator mediator) =>
             {
                 var result = await mediator.Send(command);
 

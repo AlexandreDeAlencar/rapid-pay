@@ -19,11 +19,11 @@ namespace RapidPay.CardManagement.App.UserLogin
 
         public TokenServices(IConfiguration configuration)
         {
-            _issuer = configuration["Jwt:Issuer"]
+            _issuer = configuration["JwtSettings:Issuer"]
                 ?? throw new ArgumentNullException(nameof(_issuer), "JWT Issuer configuration is missing.");
-            _audience = configuration["Jwt:Audience"]
+            _audience = configuration["JwtSettings:Audience"]
                 ?? throw new ArgumentNullException(nameof(_audience), "JWT Audience configuration is missing.");
-            _secretKey = configuration["Jwt:SecretKey"]
+            _secretKey = configuration["JwtSettings:SecretKey"]
                 ?? throw new ArgumentNullException(nameof(_secretKey), "JWT Secret Key configuration is missing.");
         }
 

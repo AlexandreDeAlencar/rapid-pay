@@ -32,7 +32,6 @@ public static class ConfigureServices
     public static IServiceCollection AddUserAuthenticationEntityFramework(this IServiceCollection services
         , IConfiguration configuration)
     {
-        // Register UserAuthContext
         services.AddDbContext<UserAuthContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 

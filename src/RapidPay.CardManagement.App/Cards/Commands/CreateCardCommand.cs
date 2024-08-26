@@ -32,7 +32,7 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             }
 
             // Set expiration date to 3 years from now
-            var expirationDate = DateTime.Now.AddYears(3);
+            var expirationDate = DateTime.UtcNow.AddYears(3);
 
             var cardId = Guid.NewGuid();
 
@@ -40,8 +40,8 @@ namespace RapidPay.CardManagement.App.Cards.Commands
                 cardId,
                 GenerateRandomCreditCardNumber(),
                 0, // Initial balance
-                DateTime.Now, // Created at
-                DateTime.Now, // Updated at
+                DateTime.UtcNow, // Created at
+                DateTime.UtcNow, // Updated at
                 request.UserName,
                 request.UserId,
                 expirationDate // Expiration date
@@ -53,6 +53,7 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             }
 
             await _cardRepository.AddAsync(card.Value);
+            await _cardRepository.SaveChangesAsync(cancellationToken);
 
             return cardId;
         }
