@@ -226,6 +226,7 @@ Here are some example requests using `curl`:
    -H "Content-Type: application/json" \
    -d '{"userName":"JohnDoe", "userId":"User123"}'
     ```
+   
 2. **Pay**:
  ```bash
    curl -X POST http://localhost:8080/api/cards/create \
@@ -233,6 +234,11 @@ Here are some example requests using `curl`:
    -d '{"userName":"JohnDoe", "userId":"User123"}'
   ```
 
+3. **Get Card Balance**:
+ ```bash
+   curl http://localhost:8080/api/cards/<your-card-id>/balance
+  ```
 
-
+### 7. Testing and Validation
+You can test the API using tools like Postman or curl by sending requests to the above endpoints. Ensure your appsettings are correctly configured and that the Docker container is running.
 
