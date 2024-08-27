@@ -44,7 +44,11 @@ builder.Services
     .AddCardManagementApplication()
     .AddEntityFrameworkConfiguration(builder.Configuration)
     .AddPaymentFeesBackgroundService()
-    .AddCardManagementDomain();
+    .AddCardManagementDomain()
+    .AddLogging(loggingBuilder =>
+    {
+        loggingBuilder.AddConsole();
+    });
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 
@@ -69,7 +73,9 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder
+    .Services
+    .AddAuthorization();
 
 var app = builder.Build();
 

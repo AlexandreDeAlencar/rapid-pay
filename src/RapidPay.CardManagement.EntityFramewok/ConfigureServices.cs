@@ -15,6 +15,9 @@ public static class ConfigureServices
         services.AddCardManagementEntityFramework(configuration)
                 .AddUserAuthenticationEntityFramework(configuration);
 
+        services.AddMemoryCache();
+        services.AddScoped<IFeeRepository, FeeRepository>();
+
         return services;
     }
 
