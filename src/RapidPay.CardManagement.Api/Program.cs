@@ -41,14 +41,14 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services
-    .AddCardManagementApplication()
-    .AddEntityFrameworkConfiguration(builder.Configuration)
-    .AddPaymentFeesBackgroundService()
-    .AddCardManagementDomain()
     .AddLogging(loggingBuilder =>
     {
         loggingBuilder.AddConsole();
-    });
+    })
+    .AddCardManagementDomain()
+    .AddCardManagementApplication()
+    .AddEntityFrameworkConfiguration(builder.Configuration)
+    .AddPaymentFeesBackgroundService();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 

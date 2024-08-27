@@ -6,7 +6,7 @@ using RapidPay.CardManagement.Domain.Ports;
 
 namespace RapidPay.CardManagement.App.Cards.Queries
 {
-    public record GetCardBalanceQuery(
+    public record GetCreditCardBalanceQuery(
         Guid CardId
     ) : IRequest<ErrorOr<GetCardBalanceQueryResponse>>;
 
@@ -14,7 +14,7 @@ namespace RapidPay.CardManagement.App.Cards.Queries
         decimal Balance
     );
 
-    public class GetCardBalanceQueryValidator : AbstractValidator<GetCardBalanceQuery>
+    public class GetCardBalanceQueryValidator : AbstractValidator<GetCreditCardBalanceQuery>
     {
         public GetCardBalanceQueryValidator()
         {
@@ -24,7 +24,7 @@ namespace RapidPay.CardManagement.App.Cards.Queries
         }
     }
 
-    public class GetCardBalanceQueryHandler : IRequestHandler<GetCardBalanceQuery, ErrorOr<GetCardBalanceQueryResponse>>
+    public class GetCardBalanceQueryHandler : IRequestHandler<GetCreditCardBalanceQuery, ErrorOr<GetCardBalanceQueryResponse>>
     {
         private readonly ICardRepository _cardRepository;
         private readonly ILogger<GetCardBalanceQueryHandler> _logger;
@@ -35,7 +35,7 @@ namespace RapidPay.CardManagement.App.Cards.Queries
             _logger = logger;
         }
 
-        public async Task<ErrorOr<GetCardBalanceQueryResponse>> Handle(GetCardBalanceQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<GetCardBalanceQueryResponse>> Handle(GetCreditCardBalanceQuery request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving balance for card: {CardId}", request.CardId);
 

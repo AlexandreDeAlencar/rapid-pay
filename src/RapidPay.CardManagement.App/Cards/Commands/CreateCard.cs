@@ -45,7 +45,7 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             var card = Card.Create(
                 cardId,
                 GenerateRandomCreditCardNumber(),
-                0,
+                50000,
                 DateTime.UtcNow,
                 DateTime.UtcNow,
                 request.UserName,

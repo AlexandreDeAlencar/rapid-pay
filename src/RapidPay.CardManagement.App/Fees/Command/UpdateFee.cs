@@ -2,6 +2,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using RapidPay.CardManagement.Domain.Fees.Models;
 using RapidPay.CardManagement.Domain.Ports;
 
 namespace RapidPay.CardManagement.App.Fees.Command;
@@ -36,15 +37,25 @@ public class UpdateFeeCommandHandler : IRequestHandler<UpdateFeeCommand, ErrorOr
     {
         _logger.LogInformation("Starting fee update. New Fee Rate: {FeeRate}, Effective Date: {EffectiveDate}", request.FeeRate, request.EffectiveDate);
 
+        Fee fee = null;
         var feeResult = _feeRepository.GetFee();
 
         if (feeResult.IsError)
         {
             _logger.LogWarning("Fee retrieval failed. Errors: {Errors}", feeResult.Errors);
-            return feeResult.Errors;
+            Fee.Create(Guid.NewGuid(), request.FeeRate, request.EffectiveDate)
+            .Match<ErrorOr<Fee>>(
+                value => fee = value,
+                errors =>
+                {
+                    _logger.LogWarning("Fee retrieval failed. Errors: {Errors}", errors);
+                    return errors;
+                });
         }
-
-        var fee = feeResult.Value;
+        else
+        {
+            fee = feeResult.Value;
+        }
 
         var updateResult = fee.Update(request.FeeRate, request.EffectiveDate);
 

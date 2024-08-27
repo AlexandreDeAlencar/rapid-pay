@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RapidPay.CardManagement.App.Fees.Command;
@@ -8,13 +9,15 @@ public class FeeUpdateHostedService : IHostedService, IDisposable
 {
     private readonly ILogger<FeeUpdateHostedService> _logger;
     private readonly IMediator _mediator;
+    private readonly IServiceProvider _serviceProvider;
     private Timer _timer;
-
     public FeeUpdateHostedService(ILogger<FeeUpdateHostedService> logger,
-        IMediator mediator)
+        IMediator mediator,
+        IServiceProvider serviceProvider)
     {
         _logger = logger;
         _mediator = mediator;
+        _serviceProvider = serviceProvider;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -32,21 +35,26 @@ public class FeeUpdateHostedService : IHostedService, IDisposable
 
         try
         {
-            var random = new Random();
-            decimal newFeeRate = (decimal)(random.NextDouble() * 2);
-            DateTime effectiveDate = DateTime.UtcNow;
-
-            var command = new UpdateFeeCommand(newFeeRate, effectiveDate);
-
-            var result = await _mediator.Send(command);
-
-            if (result.IsError)
+            using (var scope = _serviceProvider.CreateScope())
             {
-                _logger.LogWarning("Failed to update fee: {Errors}", result.Errors);
-            }
-            else
-            {
-                _logger.LogInformation("Fee updated successfully. New Fee Rate: {NewFeeRate}, Effective Date: {EffectiveDate}", newFeeRate, effectiveDate);
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                var random = new Random();
+                decimal newFeeRate = (decimal)(random.NextDouble() * 2);
+                DateTime effectiveDate = DateTime.UtcNow;
+
+                var command = new UpdateFeeCommand(newFeeRate, effectiveDate);
+
+                var result = await mediator.Send(command);
+
+                if (result.IsError)
+                {
+                    _logger.LogWarning("Failed to update fee: {Errors}", result.Errors);
+                }
+                else
+                {
+                    _logger.LogInformation("Fee updated successfully. New Fee Rate: {NewFeeRate}, Effective Date: {EffectiveDate}", newFeeRate, effectiveDate);
+                }
             }
         }
         catch (Exception ex)

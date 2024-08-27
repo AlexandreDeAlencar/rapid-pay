@@ -24,10 +24,10 @@ internal class CardsConfiguration : IEntityTypeConfiguration<Card>
     {
         builder.ToTable("cards", _schema);
 
-        builder.HasKey(c => c.CardId);
+        builder.HasKey(c => c.Id);
 
         builder
-            .Property(c => c.CardId)
+            .Property(c => c.Id)
             .HasColumnName("cardid")
             .IsRequired();
 

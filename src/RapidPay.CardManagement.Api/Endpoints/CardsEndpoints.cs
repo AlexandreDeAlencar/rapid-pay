@@ -1,87 +1,103 @@
 ﻿using MediatR;
-using Microsoft.Extensions.Logging;
 using RapidPay.CardManagement.App.Cards.Commands;
 using RapidPay.CardManagement.App.Cards.Queries;
 
-namespace RapidPay.CardManagement.Api.Endpoints
+namespace RapidPay.CardManagement.Api.Endpoints;
+
+public static class CardsEndpoints
 {
-    public static class CardsEndpoints
+    public static void MapCardsEndpoints(this IEndpointRouteBuilder app)
     {
-        public static void MapCardsEndpoints(this IEndpointRouteBuilder app)
+        app.MapPost("/api/cards/create", async (HttpContext httpContext, IMediator mediator) =>
         {
-            app.MapPost("/api/cards/create", async (HttpContext httpContext, IMediator mediator, ILogger logger) =>
+            var userName = httpContext.User.FindFirst("name")?.Value;
+            var userId = httpContext.User.FindFirst("id")?.Value;
+
+            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userId))
             {
-                var userName = httpContext.User.FindFirst("name")?.Value;
-                var userId = httpContext.User.FindFirst("id")?.Value;
+                return Results.BadRequest("Invalid token claims");
+            }
 
-                logger.LogInformation("CreateCard endpoint called. UserId: {UserId}, UserName: {UserName}", userId, userName);
+            var command = new CreateCard(userName, userId);
+            var result = await mediator.Send(command);
 
-                if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userId))
+            return result.Match(
+                created =>
                 {
-                    logger.LogWarning("CreateCard endpoint failed due to missing token claims.");
-                    return Results.BadRequest("Invalid token claims");
+                    return Results.Created($"/api/cards/{userId}", created);
+                },
+                errors =>
+                {
+                    return Results.BadRequest(errors);
                 }
+            );
+        })
+        .RequireAuthorization();
 
-                var command = new CreateCard(userName, userId);
-                var result = await mediator.Send(command);
+        app.MapPost("/api/cards/payment", async (PayWithCreditCardCommand command, IMediator mediator) =>
+        {
+            var result = await mediator.Send(command);
 
-                return result.Match(
-                    created =>
-                    {
-                        logger.LogInformation("Card created successfully. UserId: {UserId}, CardId: {CardId}", userId, created);
-                        return Results.Created($"/api/cards/{userId}", created);
-                    },
-                    errors =>
-                    {
-                        logger.LogWarning("Card creation failed for UserId: {UserId}. Errors: {Errors}", userId, errors);
-                        return Results.BadRequest(errors);
-                    }
-                );
-            })
-            .RequireAuthorization();
+            return result.Match(
+                success =>
+                {
+                    return Results.Ok(success);
+                },
+                errors =>
+                {
+                    return Results.BadRequest(errors);
+                }
+            );
+        })
+        .RequireAuthorization();
 
-            app.MapPost("/api/cards/payment", async (PayWithCreditCardCommand command, IMediator mediator, ILogger logger) =>
+        app.MapGet("/api/cards/{cardId}/balance", async (Guid cardId, IMediator mediator) =>
+        {
+            var query = new GetCreditCardBalanceQuery(cardId);
+            var result = await mediator.Send(query);
+
+            return result.Match(
+                balance =>
+                {
+                    return Results.Ok(balance);
+                },
+                errors =>
+                {
+                    return Results.BadRequest(errors);
+                }
+            );
+        })
+        .RequireAuthorization();
+
+        app.MapGet("/api/cards", async (HttpContext httpContext, IMediator mediator) =>
+        {
+            var userName = httpContext.User.FindFirst("name")?.Value;
+            var userIdString = httpContext.User.FindFirst("id")?.Value;
+
+            if (string.IsNullOrEmpty(userName))
             {
-                logger.LogInformation("PayWithCreditCard endpoint called. CardId: {CardId}, Value: {Value}", command.CardId, command.Value);
+                return Results.BadRequest("User name is missing from the token claims.");
+            }
 
-                var result = await mediator.Send(command);
-
-                return result.Match(
-                    success =>
-                    {
-                        logger.LogInformation("Payment processed successfully for CardId: {CardId}", command.CardId);
-                        return Results.Ok(success);
-                    },
-                    errors =>
-                    {
-                        logger.LogWarning("Payment failed for CardId: {CardId}. Errors: {Errors}", command.CardId, errors);
-                        return Results.BadRequest(errors);
-                    }
-                );
-            })
-            .RequireAuthorization();
-
-            app.MapGet("/api/cards/{cardId}/balance", async (Guid cardId, IMediator mediator, ILogger logger) =>
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
             {
-                logger.LogInformation("GetCardBalance endpoint called. CardId: {CardId}", cardId);
+                return Results.BadRequest("Invalid or missing User ID in the token claims.");
+            }
 
-                var query = new GetCardBalanceQuery(cardId);
-                var result = await mediator.Send(query);
+            var query = new GetUserCreditCardsQuery(userId);
+            var result = await mediator.Send(query);
 
-                return result.Match(
-                    balance =>
-                    {
-                        logger.LogInformation("Balance retrieved successfully for CardId: {CardId}. Balance: {Balance}", cardId, balance.Balance);
-                        return Results.Ok(balance);
-                    },
-                    errors =>
-                    {
-                        logger.LogWarning("Failed to retrieve balance for CardId: {CardId}. Errors: {Errors}", cardId, errors);
-                        return Results.BadRequest(errors);
-                    }
-                );
-            })
-            .RequireAuthorization();
-        }
+            return result.Match(
+                cards =>
+                {
+                    return Results.Ok(cards);
+                },
+                errors =>
+                {
+                    return Results.BadRequest(errors);
+                }
+            );
+        })
+        .RequireAuthorization();
     }
 }

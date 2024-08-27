@@ -23,7 +23,26 @@ namespace RapidPay.CardManagement.EntityFramewok.Repositories
                 cardQuery.AsNoTracking();
             }
 
-            return await cardQuery.FirstOrDefaultAsync(c => c.CardId == id);
+            return await cardQuery.FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<List<Card>?> GetByUserIdAsync(Guid userId, bool tracking = true)
+        {
+            if (_cardManagementContext?.Cards == null)
+            {
+                return new();
+            }
+
+            var cardQuery = _cardManagementContext.Cards.AsQueryable();
+
+            if (!tracking)
+            {
+                cardQuery = cardQuery.AsNoTracking();
+            }
+
+            return await cardQuery
+                .Where(c => c.UserId == userId.ToString())
+                .ToListAsync();
         }
 
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

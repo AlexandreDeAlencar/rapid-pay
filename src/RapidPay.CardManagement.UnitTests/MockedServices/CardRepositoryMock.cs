@@ -1,5 +1,4 @@
-﻿using Bogus;
-using RapidPay.CardManagement.Domain.Cards.Models;
+﻿using RapidPay.CardManagement.Domain.Cards.Models;
 using RapidPay.CardManagement.Domain.Ports;
 
 public class FakeCardRepository : ICardRepository
@@ -16,30 +15,19 @@ public class FakeCardRepository : ICardRepository
 
     public Task<Card?> GetByIdAsync(Guid id)
     {
-        var faker = new Faker();
-        var cardNumber = faker.Finance.CreditCardNumber();
-
-        var createdCard = Card.Create(
-            Guid.NewGuid(),
-            cardNumber,
-            0,
-            DateTime.Now,
-            DateTime.Now,
-            "MockUser",
-            "MockUserId",
-            DateTime.Now.AddYears(3)
-        );
-        if (createdCard.IsError)
-        {
-            return Task.FromResult<Card?>(null);
-        }
-
-        return Task.FromResult(createdCard.Value);
+        var card = _cards.FirstOrDefault(c => c.Id == id);
+        return Task.FromResult(card);
     }
 
     public Task<Card?> GetByIdAsync(Guid id, bool tracking = true)
     {
         return GetByIdAsync(id);
+    }
+
+    public Task<List<Card>?> GetByUserIdAsync(Guid userId, bool tracking = true)
+    {
+        var cards = _cards.Where(c => c.UserId == userId.ToString()).ToList();
+        return Task.FromResult(cards.Any() ? cards : null);
     }
 
     public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -49,6 +37,12 @@ public class FakeCardRepository : ICardRepository
 
     public Task UpdateAsync(Card card)
     {
+        var existingCard = _cards.FirstOrDefault(c => c.Id == card.Id);
+        if (existingCard != null)
+        {
+            _cards.Remove(existingCard);
+            _cards.Add(card);
+        }
         return Task.CompletedTask;
     }
 
@@ -67,6 +61,11 @@ public class FakeCardRepository : ICardRepository
         public Task<Card?> GetByIdAsync(Guid id, bool tracking = true)
         {
             return Task.FromResult<Card?>(null);
+        }
+
+        public Task<List<Card>?> GetByUserIdAsync(Guid userId, bool tracking = true)
+        {
+            throw new InvalidOperationException("Simulated error during retrieval by user ID");
         }
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

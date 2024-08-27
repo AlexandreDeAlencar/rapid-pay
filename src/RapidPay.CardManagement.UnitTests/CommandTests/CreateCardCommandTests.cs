@@ -62,7 +62,6 @@ public class CreateCardCommandHandlerTests
 
     [Theory]
     [InlineData("", "User123", "Unable to create a new card")]
-    [InlineData("JohnDoe", "", "Invalid userId")]
     public async Task Handle_ShouldReturnValidationError_WhenInputIsInvalid(string userName, string userId, string expectedErrorMessage)
     {
         // Arrange

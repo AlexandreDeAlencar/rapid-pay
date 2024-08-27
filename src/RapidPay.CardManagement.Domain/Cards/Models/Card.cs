@@ -10,7 +10,7 @@ namespace RapidPay.CardManagement.Domain.Cards.Models
         #region Constructor
         private Card(Guid cardId, string cardNumber, decimal balance, DateTime createdDate, DateTime lastUpdatedDate, string userName, string userId, DateTime expirationDate)
         {
-            CardId = cardId;
+            Id = cardId;
             CardNumber = cardNumber;
             Balance = balance;
             CreatedDate = createdDate;
@@ -27,7 +27,7 @@ namespace RapidPay.CardManagement.Domain.Cards.Models
         #region Properties
         [Key]
         [Column("cardid")]
-        public Guid CardId { get; private set; }
+        public Guid Id { get; private set; }
 
         [Column("cardnumber")]
         [Required]
@@ -95,6 +95,11 @@ namespace RapidPay.CardManagement.Domain.Cards.Models
         #region Public Methods
         private ErrorOr<Success> UpdateBalance(decimal newBalance)
         {
+            if (newBalance < 0)
+            {
+                return Error.Failure("Balance cannot be negative.");
+            }
+
             Balance = newBalance;
             LastUpdatedDate = DateTime.UtcNow;
 
@@ -109,9 +114,7 @@ namespace RapidPay.CardManagement.Domain.Cards.Models
             }
 
             Transactions.Add(transaction);
-            UpdateBalance(Balance - transaction.Amount);
-
-            return new Success();
+            return UpdateBalance(Balance - transaction.Amount);
         }
         #endregion
     }

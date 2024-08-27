@@ -78,7 +78,7 @@ namespace RapidPay.CardManagement.App.Cards.Commands
             if (updateBalanceResult.IsError)
             {
                 _logger.LogWarning("Payment failed: Unable to update balance for CardId: {CardId}. Errors: {Errors}", request.CardId, updateBalanceResult.Errors);
-                return Error.Validation(description: "Unable to update balance");
+                return updateBalanceResult;
             }
 
             await _cardRepository.SaveChangesAsync();
