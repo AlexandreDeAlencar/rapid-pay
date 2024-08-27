@@ -240,5 +240,58 @@ Here are some example requests using `curl`:
   ```
 
 ### 7. Testing and Validation
+### 7. Testing and Validation
+
 You can test the API using tools like Postman or curl by sending requests to the above endpoints. Ensure your appsettings are correctly configured and that the Docker container is running.
+
+#### Default Seed Data and Authentication
+
+The project includes default seed data for testing authentication. The `UserAuthContext` is configured to seed the database with some initial users and roles:
+
+- **Roles:**
+  - `Admin`
+  - `User`
+
+- **Default Users:**
+  - **Username:** `testuser1`
+    - **Password:** `Password123!`
+    - **Email:** `testuser1@example.com`
+  - **Username:** `testuser2`
+    - **Password:** `Password123!`
+    - **Email:** `testuser2@example.com`
+
+The seeded users can be used to test the authentication system.
+
+#### Login Endpoint
+
+The `/api/login` endpoint is used to authenticate users and generate JWT tokens.
+
+**Login Example:**
+
+```bash
+curl -X POST http://localhost:8080/api/login \
+-H "Content-Type: application/json" \
+-d '{"username":"testuser1", "password":"Password123!"}'
+```
+# Response:
+
+On a successful login, you will receive a JWT token in the response:
+
+```json
+{
+  "token": "your_jwt_token_here"
+}
+```
+This token can be used in the Authorization header for subsequent requests to secured endpoints.
+
+## Example of Using the Token:
+
+```bash
+curl -H "Authorization: Bearer your_jwt_token_here" \
+http://localhost:8080/api/cards/create \
+-H "Content-Type: application/json" \
+-d '{"userName":"JohnDoe", "userId":"User123"}'
+```
+Make sure to replace your_jwt_token_here with the actual token received from the login endpoint.
+
 
