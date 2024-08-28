@@ -6,10 +6,8 @@ Welcome to the RapidPay project! This guide will help you set up the project, co
 
 RapidPay is a payment provider that requires the development of a new Authorization system. The project is divided into two main modules:
 
-- **Card Management Module (60K points)**
-- **Payment Fees Module (40K points)**
-
-Additionally, there are bonuses available for improving API performance and security.
+- **Card Management Module
+- **Payment Fees Module
 
 ### Project Requirements
 
