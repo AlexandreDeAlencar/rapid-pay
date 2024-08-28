@@ -19,7 +19,7 @@ RapidPay is a payment provider that requires the development of a new Authorizat
 2. **Payment Fees Module:**
    - The payment fee is calculated randomly and changes every hour. The fee is applied to each payment.
 
-3. **Bonus (30K points):**
+3. **Bonus:**
    - Improve API performance using multithreading.
    - Enhance the authentication system for better security.
    - Ensure shared resources are thread-safe.
