@@ -1,6 +1,7 @@
 # RapidPay
 
-Welcome to the RapidPay project! 
+Welcome to the RapidPay project!
+
 This guide will help you set up the project, configure your environment, and understand the project structure and requirements.
 
 ## Project Overview
